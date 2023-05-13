@@ -54,10 +54,8 @@ docker run -d --rm --net host --device /dev/snd \
 
 ## Notes
 
-- Based on current Alpine version 3:17
-- Final image size is ~59 MB
+- Based on current Alpine version 3:18
+- Final image size is ~27 MB
 - The `make` calles use the option `-j $(( $(nproc) -1 ))` to leave one CPU for normal operation
 - `s6-overlay` is used as `init` system
-  - The `ENTRYPOINT ["/init"]` is set within the [docker-alpine-s6 base image](https://github.com/crazy-max/docker-alpine-s6) already
   - `s6-rc` with configured dependencies is used to start all services. `snapclient` should start as last
-  - `s6-rc` considers *longrun* services as "started" when the `run` file is executed. However, some services need a bit time to fully startup. To not breake dependent services, they check for existence of `*.pid` files of previous services
