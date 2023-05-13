@@ -34,8 +34,12 @@ RUN mkdir /snapclient-libs \
 FROM docker.io/alpine:3.18 as base
 ARG S6_OVERLAY_VERSION=3.1.5.0
 RUN apk add --no-cache \
+    avahi \
+    alsa-lib \
+    dbus \
     fdupes
-# Removes all libaries that are installed already in the base image
+
+# Removes all libaries that will be installed in the final image
 COPY --from=builder /snapclient-libs/ /tmp-libs/
 RUN fdupes -d -N /tmp-libs/ /usr/lib/
 
@@ -52,6 +56,7 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
 FROM docker.io/alpine:3.18
 RUN apk add --no-cache \
             avahi \
+            alsa-lib \
             dbus \
     && rm -rf /lib/apk/db/*
 

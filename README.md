@@ -14,7 +14,7 @@ Use with
 docker pull ghcr.io/yubiuser/snapclient-docker
 docker run -d --rm --net host --device /dev/snd --name snapclient snapclient-docker
 ```
-
+2023-05-13 12-07-50.425 [Info]
 or with `docker-compose.yml`
 
 ```yml
