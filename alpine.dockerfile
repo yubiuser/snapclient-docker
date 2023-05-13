@@ -18,8 +18,11 @@ RUN git clone https://github.com/badaix/snapcast.git /snapcast \
     && git checkout 481f08199ca31c60c9a3475f1064e6b06a503d12
 
 WORKDIR /snapcast
-RUN  make -j $(( $(nproc) -1 )) client
+RUN cmake -S . -B build -DBUILD_SERVER=OFF \
+    && cmake --build build -j $(( $(nproc) -1 )) --verbose \
+    && strip -s ./bin/snapclient
 WORKDIR /
+
 ### SNAPCLIENT END ###
 
 ###### MAIN START ######
@@ -39,7 +42,7 @@ RUN apk add --no-cache  alsa-lib \
                         soxr
 
 # Copy necessary files from the builder
-COPY --from=builder /snapcast/client/snapclient /usr/local/bin/
+COPY --from=builder /snapcast/bin/snapclient /usr/local/bin/
 
 COPY ./s6-overlay/s6-rc.d /etc/s6-overlay/s6-rc.d
 RUN chmod +x /etc/s6-overlay/s6-rc.d/01-startup/script.sh
