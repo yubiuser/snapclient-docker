@@ -24,6 +24,10 @@ RUN cmake -S . -B build -DBUILD_SERVER=OFF \
     && strip -s ./bin/snapclient
 WORKDIR /
 
+# Gather all shared libaries necessary to run the executable
+RUN mkdir /snapclient-libs \
+    && ldd /snapcast/bin/snapclient| cut -d" " -f3 | xargs cp --dereference --target-directory=/snapclient-libs/
+
 ### SNAPCLIENT END ###
 
 ###### BASE START ######
@@ -32,8 +36,8 @@ ARG S6_OVERLAY_VERSION=3.1.5.0
 RUN apk add --no-cache \
     fdupes
 # Removes all libaries that are installed already in the base image
-#COPY --from=librespot /librespot-libs/ /tmp-libs/
-#RUN fdupes -d -N /tmp-libs/ /usr/lib/
+COPY --from=builder /snapclient-libs/ /tmp-libs/
+RUN fdupes -d -N /tmp-libs/ /usr/lib/
 
 # Install s6
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
@@ -56,6 +60,7 @@ COPY --from=base /command /command/
 COPY --from=base /package/ /package/
 COPY --from=base /etc/s6-overlay/ /etc/s6-overlay/
 COPY --from=base init /init
+COPY --from=base /tmp-libs/ /usr/lib/
 
 # Copy necessary files from the builder
 COPY --from=builder /snapcast/bin/snapclient /usr/local/bin/
