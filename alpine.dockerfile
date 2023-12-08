@@ -1,4 +1,3 @@
-
 ARG alpine_version=3.19
 ARG S6_OVERLAY_VERSION=3.1.6.2
 
@@ -36,6 +35,7 @@ RUN mkdir /snapclient-libs \
 
 ###### BASE START ######
 FROM docker.io/alpine:${alpine_version} as base
+ARG S6_OVERLAY_VERSION
 RUN apk add --no-cache \
     avahi \
     alsa-lib \
