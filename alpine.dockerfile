@@ -1,4 +1,4 @@
-ARG alpine_version=3.19
+ARG alpine_version=3.20
 ARG S6_OVERLAY_VERSION=3.1.6.2
 
 FROM docker.io/alpine:${alpine_version} as builder
@@ -19,7 +19,7 @@ RUN apk add --no-cache \
 ### SNAPCLIENT ###
 RUN git clone https://github.com/badaix/snapcast.git /snapcast \
     && cd snapcast \
-    && git checkout 39ee4cc3a5dffc57221015dbc291fb429ac82835
+    && git checkout 6754b3a15a6967d02fe9e78d2270694344425c6f
 
 WORKDIR /snapcast
 RUN cmake -S . -B build -DBUILD_SERVER=OFF \

@@ -54,7 +54,7 @@ docker run -d --rm --net host --device /dev/snd \
 
 ## Notes
 
-- Based on current Alpine version 3:18
+- Based on current Alpine version 3:20
 - Final image size is ~27 MB
 - The `make` calles use the option `-j $(( $(nproc) -1 ))` to leave one CPU for normal operation
 - `s6-overlay` is used as `init` system
