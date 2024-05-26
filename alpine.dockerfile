@@ -1,4 +1,4 @@
-ARG alpine_version=3.19
+ARG alpine_version=3.20
 ARG S6_OVERLAY_VERSION=3.1.6.2
 
 FROM docker.io/alpine:${alpine_version} as builder
