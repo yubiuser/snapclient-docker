@@ -1,7 +1,7 @@
 ARG alpine_version=3.20
-ARG S6_OVERLAY_VERSION=3.2.0.0
+ARG S6_OVERLAY_VERSION=3.2.0.3
 
-FROM docker.io/alpine:${alpine_version} as builder
+FROM docker.io/alpine:${alpine_version} AS builder
 RUN apk add --no-cache \
     alpine-sdk \
     cmake \
@@ -34,7 +34,7 @@ RUN mkdir /snapclient-libs \
 ### SNAPCLIENT END ###
 
 ###### BASE START ######
-FROM docker.io/alpine:${alpine_version} as base
+FROM docker.io/alpine:${alpine_version} AS base
 ARG S6_OVERLAY_VERSION
 RUN apk add --no-cache \
     avahi \
