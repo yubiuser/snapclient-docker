@@ -14,14 +14,14 @@ jobs:
       packages: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4.1.6
+        uses: actions/checkout@v4.2.2
 
       - name: Revert CPU limit
         run: |
           sed -i 's/(( \$(nproc) -1 ))/(nproc)/g' './alpine.dockerfile'
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3.3.0
+        uses: docker/setup-buildx-action@v3.10.0
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -38,14 +38,14 @@ jobs:
 
       - name: Login to GitHub Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3.2.0
+        uses: docker/login-action@v3.4.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5.3.0
+        uses: docker/build-push-action@v6.16.0
         with:
           context: .
           file: ./alpine.dockerfile
