@@ -6,12 +6,12 @@ Alpine based Docker image for running the [snapclient part of snapcast](https://
 
 ## Getting started
 
-Images for `amd64` can be found at [ghcr.io/yubiuser/snapclient-docker](ghcr.io/yubiuser/snapclient-docker).
+Images for `amd64` can be found at [ghcr.io/yubiuser/yubiuser/snapclient-docker](https://github.com/yubiuser/snapclient-docker/pkgs/container/yubiuser%2Fsnapclient-docker).
 
 Use with
 
 ```plain
-docker pull ghcr.io/yubiuser/snapclient-docker
+docker pull ghcr.io/yubiuser/yubiuser/snapclient-docker
 docker run -d --rm --net host --device /dev/snd --name snapclient snapclient-docker
 ```
 
@@ -21,7 +21,7 @@ or with `docker-compose.yml`
 version: "3"
 services:
   snapclient:
-    image: ghcr.io/yubiuser/snapclient-docker
+    image: ghcr.io/yubiuser/yubiuser/snapclient-docker
     container_name: snapclient
     restart: unless-stopped
     network_mode: host
