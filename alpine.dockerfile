@@ -1,5 +1,5 @@
 ARG alpine_version=3.21
-ARG S6_OVERLAY_VERSION=3.2.0.3
+ARG S6_OVERLAY_VERSION=3.2.1.0
 
 FROM docker.io/alpine:${alpine_version} AS builder
 RUN apk add --no-cache \
@@ -48,7 +48,7 @@ RUN fdupes -d -N /tmp-libs/ /usr/lib/
 
 # Install s6
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
-    https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz /tmp
+    https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz /tmp/
 RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
     && tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz \
     && rm -rf /tmp/*
