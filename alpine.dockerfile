@@ -1,7 +1,6 @@
-ARG alpine_version=3.21
 ARG S6_OVERLAY_VERSION=3.2.1.0
 
-FROM docker.io/alpine:${alpine_version} AS builder
+FROM docker.io/alpine:3.22 AS builder
 RUN apk add --no-cache \
     alpine-sdk \
     cmake \
@@ -34,7 +33,7 @@ RUN mkdir /snapclient-libs \
 ### SNAPCLIENT END ###
 
 ###### BASE START ######
-FROM docker.io/alpine:${alpine_version} AS base
+FROM docker.io/alpine:3.22 AS base
 ARG S6_OVERLAY_VERSION
 RUN apk add --no-cache \
     avahi \
@@ -56,7 +55,7 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
 ###### BASE END ######
 
 ###### MAIN START ######
-FROM docker.io/alpine:${alpine_version}
+FROM docker.io/alpine:3.22
 
 ENV S6_CMD_WAIT_FOR_SERVICES=1
 ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0
