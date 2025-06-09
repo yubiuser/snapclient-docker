@@ -8,3 +8,10 @@ updates:
     time: "10:00"
   open-pull-requests-limit: 10
   target-branch: development
+- package-ecosystem: "docker"
+  directory: "/"
+  schedule:
+    interval: "weekly"
+    day: satumondayrday
+    time: "10:00"
+  target-branch: development
