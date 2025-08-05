@@ -1,7 +1,6 @@
-ARG alpine_version=3.21
 ARG S6_OVERLAY_VERSION=3.2.1.0
 
-FROM docker.io/alpine:${alpine_version} AS builder
+FROM docker.io/alpine:3.22 AS builder
 RUN apk add --no-cache \
     alpine-sdk \
     cmake \
@@ -9,6 +8,7 @@ RUN apk add --no-cache \
     avahi-dev \
     bash \
     boost-dev \
+    expat-dev \
     flac-dev \
     git \
     libvorbis-dev \
@@ -19,7 +19,7 @@ RUN apk add --no-cache \
 ### SNAPCLIENT ###
 RUN git clone https://github.com/badaix/snapcast.git /snapcast \
     && cd snapcast \
-    && git checkout 40ad2bac0ac59930fbabfda7cad41c6b2482c658
+    && git checkout b7c23f077e8e77ed40f6467c81d0da364722aa0a
 
 WORKDIR /snapcast
 RUN cmake -S . -B build -DBUILD_SERVER=OFF \
@@ -34,8 +34,10 @@ RUN mkdir /snapclient-libs \
 ### SNAPCLIENT END ###
 
 ###### BASE START ######
-FROM docker.io/alpine:${alpine_version} AS base
+FROM docker.io/alpine:3.22 AS base
 ARG S6_OVERLAY_VERSION
+ARG S6_ARCH=x86_64
+
 RUN apk add --no-cache \
     avahi \
     alsa-lib \
@@ -48,15 +50,15 @@ RUN fdupes -d -N /tmp-libs/ /usr/lib/
 
 # Install s6
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
-    https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz /tmp/
+    https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz /tmp/
 RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
-    && tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz \
+    && tar -C / -Jxpf /tmp/s6-overlay-${S6_ARCH}.tar.xz \
     && rm -rf /tmp/*
 
 ###### BASE END ######
 
 ###### MAIN START ######
-FROM docker.io/alpine:${alpine_version}
+FROM docker.io/alpine:3.22
 
 ENV S6_CMD_WAIT_FOR_SERVICES=1
 ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0
