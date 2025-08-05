@@ -8,6 +8,7 @@ RUN apk add --no-cache \
     avahi-dev \
     bash \
     boost-dev \
+    expat-dev \
     flac-dev \
     git \
     libvorbis-dev \
