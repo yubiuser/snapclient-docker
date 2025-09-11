@@ -1,6 +1,6 @@
 ARG S6_OVERLAY_VERSION=3.2.1.0
 
-FROM docker.io/alpine:3.22 AS builder
+FROM docker.io/alpine:3.22.1 AS builder
 RUN apk add --no-cache \
     alpine-sdk \
     cmake \
@@ -19,10 +19,21 @@ RUN apk add --no-cache \
 ### SNAPCLIENT ###
 RUN git clone https://github.com/badaix/snapcast.git /snapcast \
     && cd snapcast \
-    && git checkout b7c23f077e8e77ed40f6467c81d0da364722aa0a
+    && git checkout c8bdb44f0a2640eac82ed0bd23875aa7a92fb69c
 
 WORKDIR /snapcast
-RUN cmake -S . -B build -DBUILD_SERVER=OFF \
+RUN cmake -S . -B build \
+    -DBUILD_SERVER=OFF \
+    -DBUILD_WITH_SSL=OFF \
+    -DBUILD_WITH_ALSA=ON \
+    -DBUILD_WITH_FLAC=ON \
+    -DBUILD_WITH_VORBIS=ON \
+    -DBUILD_WITH_OPUS=ON \
+    -DBUILD_WITH_AVAHI=ON \
+    -DBUILD_WITH_EXPAT=ON \
+    -DBUILD_WITH_PULSE=OFF \
+    -DBUILD_WITH_JACK=OFF \
+    -DBUILD_WITH_PIPEWIRE=OFF \
     && cmake --build build -j $(( $(nproc) -1 )) --verbose \
     && strip -s ./bin/snapclient
 WORKDIR /
@@ -34,7 +45,7 @@ RUN mkdir /snapclient-libs \
 ### SNAPCLIENT END ###
 
 ###### BASE START ######
-FROM docker.io/alpine:3.22 AS base
+FROM docker.io/alpine:3.22.1 AS base
 ARG S6_OVERLAY_VERSION
 ARG S6_ARCH=x86_64
 
@@ -58,7 +69,7 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
 ###### BASE END ######
 
 ###### MAIN START ######
-FROM docker.io/alpine:3.22
+FROM docker.io/alpine:3.22.1
 
 ENV S6_CMD_WAIT_FOR_SERVICES=1
 ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0
