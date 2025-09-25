@@ -19,7 +19,7 @@ RUN apk add --no-cache \
 ### SNAPCLIENT ###
 RUN git clone https://github.com/badaix/snapcast.git /snapcast \
     && cd snapcast \
-    && git checkout c8bdb44f0a2640eac82ed0bd23875aa7a92fb69c
+    && git checkout f7e8143b49f22e8ecb5b7047706aa1215d7921b9
 
 WORKDIR /snapcast
 RUN cmake -S . -B build \
