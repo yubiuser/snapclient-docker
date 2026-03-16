@@ -34,7 +34,7 @@ RUN cmake -S . -B build \
     -DBUILD_WITH_PULSE=OFF \
     -DBUILD_WITH_JACK=OFF \
     -DBUILD_WITH_PIPEWIRE=OFF \
-    && cmake --build build -j $(( $(nproc) -1 )) --verbose \
+    && cmake --build build -j $(nproc) --verbose \
     && strip -s ./bin/snapclient
 WORKDIR /
 
@@ -47,7 +47,7 @@ RUN mkdir /snapclient-libs \
 ###### BASE START ######
 FROM docker.io/alpine:3.23.3@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659 AS base
 ARG S6_OVERLAY_VERSION
-ARG S6_ARCH=x86_64
+ARG TARGETARCH
 
 RUN apk add --no-cache \
     avahi \
@@ -59,11 +59,16 @@ RUN apk add --no-cache \
 COPY --from=builder /snapclient-libs/ /tmp-libs/
 RUN fdupes -d -N /tmp-libs/ /usr/lib/
 
-# Install s6
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
-    https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz /tmp/
-RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
-    && tar -C / -Jxpf /tmp/s6-overlay-${S6_ARCH}.tar.xz \
+# Install s6 - map Docker's TARGETARCH to s6-overlay architecture names
+RUN case "${TARGETARCH}" in \
+      amd64) S6_ARCH="x86_64" ;; \
+      arm64) S6_ARCH="aarch64" ;; \
+      *) echo "Unsupported architecture: ${TARGETARCH}" && exit 1 ;; \
+    esac \
+    && wget -O /tmp/s6-overlay-noarch.tar.xz "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" \
+    && wget -O /tmp/s6-overlay-arch.tar.xz "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz" \
+    && tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
+    && tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz \
     && rm -rf /tmp/*
 
 ###### BASE END ######
