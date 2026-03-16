@@ -1,6 +1,6 @@
 ARG S6_OVERLAY_VERSION=3.2.2.0
 
-FROM docker.io/alpine:3.23.3 AS builder
+FROM docker.io/alpine:3.23.3@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659 AS builder
 RUN apk add --no-cache \
     alpine-sdk \
     cmake \
@@ -45,7 +45,7 @@ RUN mkdir /snapclient-libs \
 ### SNAPCLIENT END ###
 
 ###### BASE START ######
-FROM docker.io/alpine:3.23.3 AS base
+FROM docker.io/alpine:3.23.3@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659 AS base
 ARG S6_OVERLAY_VERSION
 ARG S6_ARCH=x86_64
 
@@ -69,7 +69,7 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
 ###### BASE END ######
 
 ###### MAIN START ######
-FROM docker.io/alpine:3.23.3
+FROM docker.io/alpine:3.23.3@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
 
 ENV S6_CMD_WAIT_FOR_SERVICES=1
 ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0
