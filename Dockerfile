@@ -1,6 +1,6 @@
-ARG S6_OVERLAY_VERSION=3.2.2.0
+ARG S6_OVERLAY_VERSION=3.2.3.2
 
-FROM docker.io/alpine:3.23.2 AS builder
+FROM docker.io/alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b AS builder
 RUN apk add --no-cache \
     alpine-sdk \
     cmake \
@@ -17,9 +17,9 @@ RUN apk add --no-cache \
     soxr-dev
 
 ### SNAPCLIENT ###
-RUN git clone https://github.com/badaix/snapcast.git /snapcast \
+RUN git clone https://github.com/snapcast/snapcast.git /snapcast \
     && cd snapcast \
-    && git checkout 439dc88637bb7ac227c24d8ad383e7cdf46a76d7
+    && git checkout 4fed179e177b251c67326e7b62a25c8d8fb2d1a9
 
 WORKDIR /snapcast
 RUN cmake -S . -B build \
@@ -34,7 +34,7 @@ RUN cmake -S . -B build \
     -DBUILD_WITH_PULSE=OFF \
     -DBUILD_WITH_JACK=OFF \
     -DBUILD_WITH_PIPEWIRE=OFF \
-    && cmake --build build -j $(( $(nproc) -1 )) --verbose \
+    && cmake --build build -j $(nproc) --verbose \
     && strip -s ./bin/snapclient
 WORKDIR /
 
@@ -45,9 +45,9 @@ RUN mkdir /snapclient-libs \
 ### SNAPCLIENT END ###
 
 ###### BASE START ######
-FROM docker.io/alpine:3.23.2 AS base
+FROM docker.io/alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b AS base
 ARG S6_OVERLAY_VERSION
-ARG S6_ARCH=x86_64
+ARG TARGETARCH
 
 RUN apk add --no-cache \
     avahi \
@@ -59,17 +59,22 @@ RUN apk add --no-cache \
 COPY --from=builder /snapclient-libs/ /tmp-libs/
 RUN fdupes -d -N /tmp-libs/ /usr/lib/
 
-# Install s6
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
-    https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz /tmp/
-RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
-    && tar -C / -Jxpf /tmp/s6-overlay-${S6_ARCH}.tar.xz \
+# Install s6 - map Docker's TARGETARCH to s6-overlay architecture names
+RUN case "${TARGETARCH}" in \
+      amd64) S6_ARCH="x86_64" ;; \
+      arm64) S6_ARCH="aarch64" ;; \
+      *) echo "Unsupported architecture: ${TARGETARCH}" && exit 1 ;; \
+    esac \
+    && wget -O /tmp/s6-overlay-noarch.tar.xz "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" \
+    && wget -O /tmp/s6-overlay-arch.tar.xz "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz" \
+    && tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
+    && tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz \
     && rm -rf /tmp/*
 
 ###### BASE END ######
 
 ###### MAIN START ######
-FROM docker.io/alpine:3.23.2
+FROM docker.io/alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
 
 ENV S6_CMD_WAIT_FOR_SERVICES=1
 ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0
@@ -90,7 +95,7 @@ COPY --from=base /tmp-libs/ /usr/lib/
 # Copy necessary files from the builder
 COPY --from=builder /snapcast/bin/snapclient /usr/local/bin/
 
-COPY ./s6-overlay/s6-rc.d /etc/s6-overlay/s6-rc.d
+COPY ./s6-overlay/ /etc/s6-overlay/
 RUN chmod +x /etc/s6-overlay/s6-rc.d/01-startup/script.sh
 
 RUN mkdir -p /var/run/dbus/
