@@ -95,7 +95,7 @@ COPY --from=base /tmp-libs/ /usr/lib/
 # Copy necessary files from the builder
 COPY --from=builder /snapcast/bin/snapclient /usr/local/bin/
 
-COPY ./s6-overlay/s6-rc.d /etc/s6-overlay/s6-rc.d
+COPY ./s6-overlay/ /etc/s6-overlay/
 RUN chmod +x /etc/s6-overlay/s6-rc.d/01-startup/script.sh
 
 RUN mkdir -p /var/run/dbus/
