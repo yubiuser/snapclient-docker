@@ -1,6 +1,6 @@
 ARG S6_OVERLAY_VERSION=3.2.3.2
 
-FROM docker.io/alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b AS builder
+FROM docker.io/alpine:3.24.2@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6 AS builder
 RUN apk add --no-cache \
     alpine-sdk \
     cmake \
@@ -45,7 +45,7 @@ RUN mkdir /snapclient-libs \
 ### SNAPCLIENT END ###
 
 ###### BASE START ######
-FROM docker.io/alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b AS base
+FROM docker.io/alpine:3.24.2@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6 AS base
 ARG S6_OVERLAY_VERSION
 ARG TARGETARCH
 
@@ -74,7 +74,7 @@ RUN case "${TARGETARCH}" in \
 ###### BASE END ######
 
 ###### MAIN START ######
-FROM docker.io/alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
+FROM docker.io/alpine:3.24.2@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
 
 ENV S6_CMD_WAIT_FOR_SERVICES=1
 ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0
